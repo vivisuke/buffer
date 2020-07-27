@@ -65,7 +65,15 @@ public:
 	typedef const Type* const_pointer;
 	//typedef _A Allocator;
 public:
-	gap_buffer() : m_data(0), m_gapIndex(0), m_gapSize(0), m_size(0) {}
+	//gap_buffer() : m_data(0), m_gapIndex(0), m_gapSize(0), m_size(0) {}
+	gap_buffer(size_t sz = 0)
+		: m_size(sz)
+	{
+		auto capacity = sz != 0 ? m_size : DEFAULT_BUFFER_SIZE;
+		m_gapIndex = sz;
+		m_gapSize = capacity - sz;
+		m_data = new value_type[capacity];
+	}
 	gap_buffer(const gap_buffer<value_type> &x)
 	{
 		if( x.m_data == 0 ) {

@@ -16,7 +16,7 @@ public:
 	my_vector(size_t sz = 0)
 		: m_size(sz)
 	{
-		m_capacity = sz != 0 ? m_size * 2 : DEFAULT_BUFFER_SIZE;
+		m_capacity = sz != 0 ? m_size : DEFAULT_BUFFER_SIZE;
 		m_data = new value_type[m_capacity];
 	}
 	~my_vector()
