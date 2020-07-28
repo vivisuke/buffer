@@ -30,6 +30,7 @@ void test_insert();
 void test_erase();
 void test_VectWchar();
 void test_my_vector();
+void test_StringList();
 void test_gap_vetor();
 void test_list_wstring();
 void test_list_cache();
@@ -38,6 +39,7 @@ void measure_arrayIndexOp();
 void measure_push_back();
 void measure_push_front();
 void measure_pop_back();
+//void measure_StringList0();
 void measure_StringList();
 void measure_insert5();			//	5文字ごとに文字挿入
 
@@ -50,6 +52,7 @@ int main()
 	test_erase();
 	//test_VectWchar();
 	//test_my_vector();
+	//test_StringList();
 	//test_gap_vetor();
 	//test_list_wstring();
 	//test_list_cache();
@@ -59,6 +62,7 @@ int main()
 	//measure_push_back();
 	//measure_push_front();
 	//measure_pop_back();
+	//measure_StringList0();
 	//measure_StringList();
 	measure_insert5();
 #if	0
@@ -503,15 +507,17 @@ void test_gap_vetor()
 //	100メガ文字～500メガ（step 100メガ）参照時間計測
 void measure_arrayIndexOp()
 {
-	const int LOOP = 5;
+	const int LOOP = 10;
 	//const int SZ = 500*1024*1024;
-	const int STEP = 100*1024*1024;
+	const int STEP = 50*1024*1024;
 	const int SZ = STEP * LOOP;
 	char *arr = new char[SZ];
 	//for(auto& x: arr) x = 'a' + g_mt() % 26;
 #ifndef _DEBUG
 	for(int i = 0; i != SZ; ++i) arr[i] = 'a' + g_mt() % 26;
 #endif
+	vector<int64_t> lst;
+	//
 	cout << "array[]:\n";
 	for (int i = 1; i <= LOOP; ++i) {
 		auto start = std::chrono::system_clock::now();      // 計測スタート時刻を保存
@@ -526,7 +532,10 @@ void measure_arrayIndexOp()
 		cout << STEP*i/(1024*1024) << "Mega: ";
 		//cout << "sum = " << (int)sum << " ";
 		cout << "msec = " << msec << "\n";
+		lst.push_back(msec);
 	}
+	for(auto x: lst) { cout << x << ","; } cout << "\n";
+	lst.clear();
 	//
 	cout << "my_vector::operator[]:\n";
 	my_vector<char> mv(SZ);
@@ -544,7 +553,10 @@ void measure_arrayIndexOp()
 		cout << STEP*i/(1024*1024) << "Mega: ";
 		//cout << "sum = " << (int)sum << " ";
 		cout << "msec = " << msec << "\n";
+		lst.push_back(msec);
 	}
+	for(auto x: lst) { cout << x << ","; } cout << "\n";
+	lst.clear();
 	//
 	cout << "gap_buffer::operator[]:\n";
 	gap_buffer<char> gv(SZ);
@@ -562,7 +574,10 @@ void measure_arrayIndexOp()
 		cout << STEP*i/(1024*1024) << "Mega: ";
 		//cout << "sum = " << (int)sum << " ";
 		cout << "msec = " << msec << "\n";
+		lst.push_back(msec);
 	}
+	for(auto x: lst) { cout << x << ","; } cout << "\n";
+	lst.clear();
 	delete [] arr;
 }
 void measure_push_back()
@@ -719,6 +734,59 @@ void measure_pop_back()
 	for(auto x: lst) { cout << x << ","; } cout << "\n";
 	lst.clear();
 }
+void test_StringList()
+{
+	const int LEN = 80;		//	行長
+	StringList sl;
+	for (int i = 0; i < 10; ++i) {
+		string txt(LEN, 'a' + i);
+		sl.push_back(txt);
+	}
+	assert( sl.size() == 10 );
+	assert( sl.charAt(0, 0) == 'a' );
+}
+#if	0
+void measure_StringList0()
+{
+	cout << "\ninsert5:\n";
+	const int LOOP = 10;
+#ifdef _DEBUG
+	const int STEP = 1 * 1024;
+#else
+	const int STEP = 20 * 1024;
+#endif // DEBUG
+	const int LEN = 80;		//	行長
+	string txt(LEN, 'a');
+	//
+	vector<int64_t> lst;
+	cout << "list<string>:\n";
+	StringList strlst;
+	for (int i = 1; i <= LOOP; ++i) {
+		const int SZI = STEP * i;
+		for (int k = 0; k < SZI; ++k) {
+			strlst.push_back(txt);
+		}
+		auto start = std::chrono::system_clock::now();      // 計測スタート時刻を保存
+		for (auto itr = strlst.begin(); itr != strlst.end(); ++itr) {
+			auto& t = *itr;
+			int ix = 5;
+			while( ix <= t.size() ) {
+				t.insert(t.begin() + ix, 'X');
+				ix += 1 + 5;
+			}
+		}
+		auto end = std::chrono::system_clock::now();       // 計測終了時刻を保存
+		auto dur = end - start;        // 要した時間を計算
+		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+		cout << SZI/1024 << "Kilo: ";
+		cout << "msec = " << msec << "\n";
+		lst.push_back(msec);
+	}
+	for(auto x: lst) { cout << x << ","; } cout << "\n";
+	lst.clear();
+	//
+}
+#endif
 void measure_StringList()
 {
 	const int LOOP = 10;
@@ -802,6 +870,7 @@ void measure_insert5()
 {
 	cout << "\ninsert5:\n";
 	const int LOOP = 10;
+	const int STEP1 = 100;
 #ifdef _DEBUG
 	const int STEP = 1 * 1024;
 #else
@@ -811,6 +880,31 @@ void measure_insert5()
 	string txt(LEN, 'a');
 	//
 	vector<int64_t> lst;
+	//
+	cout << "vector<char>:\n";
+	vector<char> v;
+	for (int i = 1; i <= LOOP; ++i) {
+		const int SZI = STEP1 * i;
+		for (int k = 0; k < SZI; ++k) {
+			//v.insert(v.size(), &txt[0], &txt[txt.size()-1]);
+			for(auto c: txt) v.push_back(c);
+		}
+		auto start = std::chrono::system_clock::now();      // 計測スタート時刻を保存
+		int ix = 5;
+		while( ix <= v.size() ) {
+			v.insert(v.begin() + ix, 'X');
+			ix += 1 + 5;
+		}
+		auto end = std::chrono::system_clock::now();       // 計測終了時刻を保存
+		auto dur = end - start;        // 要した時間を計算
+		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+		cout << SZI << ": ";
+		cout << "msec = " << msec << "\n";
+		lst.push_back(msec);
+	}
+	for(auto x: lst) { cout << x << ","; } cout << "\n";
+	lst.clear();
+	//
 	cout << "list<string>:\n";
 	StringList strlst;
 	for (int i = 1; i <= LOOP; ++i) {

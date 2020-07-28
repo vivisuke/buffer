@@ -62,6 +62,18 @@ public:
 		}
 		return m_cachedItr;
 	}
+	char& charAt(int line, int offset)
+	{
+		auto itr = findIterator(line);
+		return (*itr)[offset];
+	}
+#if	0
+	char charAt(int line, int offset) const
+	{
+		auto itr = findIterator(line);
+		return (*itr)[offset];
+	}
+#endif
 private:
 	int		m_cachedLine;
 	StringList::iterator	m_cachedItr;

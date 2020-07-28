@@ -142,6 +142,7 @@
     <ClCompile Include="buffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="gap_buffer.h" />
     <ClInclude Include="my_vector.h" />
     <ClInclude Include="StringList.h" />
     <ClInclude Include="VectWchar.h" />
