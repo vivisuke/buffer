@@ -9,6 +9,7 @@
 #include "gap_buffer.h"
 #include "my_vector.h"
 #include "StringList.h"
+#include "PieceTable.h"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ void test_StringList();
 void test_gap_vetor();
 void test_list_wstring();
 void test_list_cache();
+void test_PieceTable();
 void test_scroll();
 void measure_arrayIndexOp();
 void measure_push_back();
@@ -56,6 +58,7 @@ int main()
 	//test_gap_vetor();
 	//test_list_wstring();
 	//test_list_cache();
+	test_PieceTable();
 	//test_scroll();
 	
 	//measure_arrayIndexOp();
@@ -64,7 +67,7 @@ int main()
 	//measure_pop_back();
 	//measure_StringList0();
 	//measure_StringList();
-	measure_insert5();
+	//measure_insert5();
 #if	0
     wstring wstr = L"abc";
     wcout << wstr << "\n";
@@ -953,4 +956,41 @@ void measure_insert5()
 	}
 	for(auto x: lst) { cout << x << ","; } cout << "\n";
 	lst.clear();
+}
+void test_PieceTable()
+{
+	PieceTable<char> pt;
+	cout << pt.dump() << "\n";
+	assert( pt.size() == 0 );
+	assert( pt.empty() );
+	assert( pt.isEmpty() );
+	pt.push_back('a');
+	pt.push_back('b');
+	pt.push_back('c');
+	cout << pt.dump() << "\n";
+	assert( pt.size() == 3 );
+	assert( pt[0] == 'a' );
+	assert( pt[1] == 'b' );
+	assert( pt[2] == 'c' );
+	//auto ch = pt[3];
+	pt.pop_back();
+	pt.pop_back();
+	assert( pt.size() == 1 );
+	assert( pt[0] == 'a' );
+	pt.pop_back();
+	assert( pt.size() == 0 );
+	assert( pt.empty() );
+	assert( pt.isEmpty() );
+	cout << pt.dump() << "\n";
+	//
+	pt.push_back('a');
+	pt.push_back('b');
+	pt.push_back('c');
+	pt.pop_back();
+	pt.push_back('x');
+	assert( pt.size() == 3 );
+	assert( pt[0] == 'a' );
+	assert( pt[1] == 'b' );
+	assert( pt[2] == 'x' );
+	cout << pt.dump() << "\n";
 }

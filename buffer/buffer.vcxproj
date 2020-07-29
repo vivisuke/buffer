@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="gap_buffer.h" />
     <ClInclude Include="my_vector.h" />
+    <ClInclude Include="PieceTable.h" />
     <ClInclude Include="StringList.h" />
     <ClInclude Include="VectWchar.h" />
   </ItemGroup>
