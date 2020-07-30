@@ -47,7 +47,7 @@ public:
 		{
 		}
 public:
-		pos_t nextPos const { return m_start + m_length; }
+		pos_t nextPos () const { return m_start + m_length; }
 public:
 		pos_t	m_start;		//	ピース先頭文字の m_buffer 内位置
 		size_t	m_length;		//	ピース内文字数
@@ -159,11 +159,42 @@ public:
 			if( offset == 0 ) {		//	ピース先頭位置での挿入
 				if( m_table[tix-1].nextPos() == start ) {	 //	最後のピースの最後の文字が m_buffer 最後の場合
 					m_table[tix-1].m_length += 1;
+				} else {
+					m_table.insert(tix, Piece(start, 1));	//	直前に新規ピース追加
 				}
-			} else {
+			} else {	//	ピース途中への挿入
+				Piece& p = m_table[tix];
+				m_table.insert(tix+1, Piece(p.m_start + offset, p.m_length - offset));	//	直後に新規ピース追加
+				m_table[tix].m_length = offset;
+				m_table.insert(tix+1, Piece(start, 1));	//	直後に新規ピース追加
 			}
 			m_buffer.push_back(ch);
 			++m_size;
+		}
+	}
+	void erase(pos_t pos) {
+		if( empty() || pos >= size() ) return;
+		if( pos == size() - 1 ) {
+			pop_back();
+		} else if( pos == 0 ) {
+			pop_front();
+		} else {
+			int tix, offset;
+			posToTable(pos, tix, offset);
+			Piece& p = m_table[tix];
+			if( offset == 0 ) {		//	ピース先頭文字削除
+				if( p.m_length == 1 ) {		//	ピースが1文字だけの場合
+					m_table.erase(tix);
+				} else {
+					p.m_start += 1;
+					p.m_length -= 1;
+				}
+			} else if( offset == m_table[tix].m_length - 1 ) {		//	ピース末尾文字削除の場合
+				p.m_length -= 1;
+			} else {
+				m_table.insert(tix+1, Piece(p.m_start + offset + 1, p.m_length - offset - 1));	//	直後に新規ピース追加
+				m_table[tix].m_length = offset;
+			}
 		}
 	}
 private:

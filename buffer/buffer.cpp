@@ -62,7 +62,7 @@ int main()
 	//test_scroll();
 	
 	//measure_arrayIndexOp();
-	//measure_push_back();
+	measure_push_back();
 	//measure_push_front();
 	//measure_pop_back();
 	//measure_StringList0();
@@ -588,6 +588,7 @@ void measure_push_back()
 	const int LOOP = 10;
 	const int STEP = 20*1024*1024;
 	const int SZ = STEP * LOOP;
+	vector<int64_t> lst;
 	//
 	cout << "vector::push_back():\n";
 	for (int i = 1; i <= LOOP; ++i) {
@@ -601,7 +602,10 @@ void measure_push_back()
 		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 		cout << STEP*i/(1024*1024) << "Mega: ";
 		cout << "msec = " << msec << "\n";
+		lst.push_back(msec);
 	}
+	for(auto x: lst) { cout << x << ","; } cout << "\n";
+	lst.clear();
 	//
 	cout << "my_vector::push_back():\n";
 	for (int i = 1; i <= LOOP; ++i) {
@@ -615,7 +619,10 @@ void measure_push_back()
 		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 		cout << STEP*i/(1024*1024) << "Mega: ";
 		cout << "msec = " << msec << "\n";
+		lst.push_back(msec);
 	}
+	for(auto x: lst) { cout << x << ","; } cout << "\n";
+	lst.clear();
 	//
 	cout << "gap_buffer::push_back():\n";
 	for (int i = 1; i <= LOOP; ++i) {
@@ -629,7 +636,27 @@ void measure_push_back()
 		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 		cout << STEP*i/(1024*1024) << "Mega: ";
 		cout << "msec = " << msec << "\n";
+		lst.push_back(msec);
 	}
+	for(auto x: lst) { cout << x << ","; } cout << "\n";
+	lst.clear();
+	//
+	cout << "PieceTable::push_back():\n";
+	for (int i = 1; i <= LOOP; ++i) {
+		PieceTable<char> pt;
+		auto start = std::chrono::system_clock::now();      // 計測スタート時刻を保存
+		for (int k = 0; k < i * STEP; ++k) {
+			pt.push_back('a' + (g_mt() % 26));
+		}
+		auto end = std::chrono::system_clock::now();       // 計測終了時刻を保存
+		auto dur = end - start;        // 要した時間を計算
+		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+		cout << STEP*i/(1024*1024) << "Mega: ";
+		cout << "msec = " << msec << "\n";
+		lst.push_back(msec);
+	}
+	for(auto x: lst) { cout << x << ","; } cout << "\n";
+	lst.clear();
 }
 void measure_push_front()
 {
@@ -993,4 +1020,31 @@ void test_PieceTable()
 	assert( pt[1] == 'b' );
 	assert( pt[2] == 'x' );
 	cout << pt.dump() << "\n";
+	//
+	pt.insert(2, 'w');
+	assert( pt.size() == 4 );
+	assert( pt[0] == 'a' );
+	assert( pt[1] == 'b' );
+	assert( pt[2] == 'w' );
+	assert( pt[3] == 'x' );
+	cout << pt.dump() << "\n";
+	pt.insert(3, 'v');			//	続けて文字を挿入
+	assert( pt.size() == 5 );
+	assert( pt[0] == 'a' );
+	assert( pt[1] == 'b' );
+	assert( pt[2] == 'w' );
+	assert( pt[3] == 'v' );
+	assert( pt[4] == 'x' );
+	cout << pt.dump() << "\n";
+	//
+	pt.insert(1, 'z');
+	assert( pt.size() == 6 );
+	assert( pt[0] == 'a' );
+	assert( pt[1] == 'z' );
+	assert( pt[2] == 'b' );
+	assert( pt[3] == 'w' );
+	assert( pt[4] == 'v' );
+	assert( pt[5] == 'x');
+	cout << pt.dump() << "\n";
+	//
 }
